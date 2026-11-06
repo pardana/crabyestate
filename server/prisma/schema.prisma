@@ -1,0 +1,80 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String     @id @default(auto()) @map("_id") @db.ObjectId
+  name       String
+  email      String     @unique
+  password   String
+  phone      String?
+  properties Property[]
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+}
+
+model Property {
+  id            String           @id @default(auto()) @map("_id") @db.ObjectId
+  title         String
+  description   String
+  property_type PROPERTYENUM     @default(HOUSE)
+  listing_type  LISTINGENUM      @default(SELL)
+  status        STATUSENUM       @default(PENDING)
+  price         Float
+  specs         PROPERTYSPEC
+  location      PROPERTYLOCATION
+  amenities     String[]
+  media         PROPERTYMEDIA
+  agent_id      String           @db.ObjectId
+  agent         User             @relation(fields: [agent_id], references: [id])
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+}
+
+enum PROPERTYENUM {
+  HOUSE
+  APARTMENT
+  SHOPHOUSE
+}
+
+enum LISTINGENUM {
+  SELL
+  RENT
+}
+
+enum STATUSENUM {
+  ACTIVE
+  PENDING
+  SOLDOUT
+}
+
+type PROPERTYSPEC {
+  bedrooms      Int
+  bathrooms     Int
+  surface_area  Float
+  building_area Float
+  floors        Int
+}
+
+type PROPERTYLOCATION {
+  address     String
+  city        String
+  state       String
+  coordinates Float[]
+}
+
+type PROPERTYMEDIA {
+  url      String
+  image_id String
+}
