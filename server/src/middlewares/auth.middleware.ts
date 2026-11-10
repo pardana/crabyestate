@@ -1,0 +1,68 @@
+import { RequestHandler } from "express";
+import jwt from "jsonwebtoken";
+import { prisma } from "../config/prisma.js";
+
+interface UserProfile {
+  id: any;
+  name: string;
+  email: string;
+  phone?: string;
+}
+
+declare global {
+  namespace Express {
+    interface Request {
+      user: UserProfile;
+    }
+  }
+}
+
+const AuthMiddleware: RequestHandler = async (req, res, next) => {
+  try {
+    const authToken = req.headers.authorization;
+    if (!authToken) {
+      res.status(403).json({
+        success: false,
+        message: "Unauthorized Access!",
+      });
+      return;
+    }
+
+    // Bearer index 0
+    // jdakjdgajsdgiuagdasgdadajdgajks index 1
+    const token = authToken.split("Bearer ")[1];
+    const payload = jwt.verify(token, process.env.JWT_SECRET!) as {
+      id: string;
+    };
+
+    const currentUser = await prisma.user.findUnique({
+      where: {
+        id: payload.id,
+      },
+    });
+
+    if (!currentUser) {
+      res.status(403).json({
+        success: false,
+        message: "Unauthorized Access!",
+      });
+      return;
+    }
+
+    req.user = {
+      id: currentUser.id,
+      name: currentUser.name,
+      email: currentUser.email,
+      phone: currentUser.phone || null || undefined,
+    };
+
+    next();
+  } catch (error) {
+    res.status(403).json({
+      success: false,
+      message: "Unauthorized Access!",
+    });
+  }
+};
+
+export default AuthMiddleware;

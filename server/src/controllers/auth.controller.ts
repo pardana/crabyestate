@@ -135,3 +135,18 @@ export const LoginUser: RequestHandler = async (req, res) => {
     });
   }
 };
+
+export const CurrentUser: RequestHandler = async (req, res) => {
+  try {
+    res.status(200).json({
+      status: true,
+      message: "Get current user success!",
+      data: req.user,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: false,
+      message: "Internal server error - CurrentUser",
+    });
+  }
+};
