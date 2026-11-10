@@ -24,7 +24,7 @@ const AuthMiddleware: RequestHandler = async (req, res, next) => {
   try {
     const authToken = req.headers.authorization;
     if (!authToken) {
-      res.status(403).json({
+      res.status(401).json({
         success: false,
         message: "Unauthorized Access!",
       });
@@ -45,7 +45,7 @@ const AuthMiddleware: RequestHandler = async (req, res, next) => {
     });
 
     if (!currentUser) {
-      res.status(403).json({
+      res.status(401).json({
         success: false,
         message: "Unauthorized Access!",
       });
@@ -61,7 +61,7 @@ const AuthMiddleware: RequestHandler = async (req, res, next) => {
 
     next();
   } catch (error) {
-    res.status(403).json({
+    res.status(401).json({
       success: false,
       message: "Unauthorized Access!",
     });
