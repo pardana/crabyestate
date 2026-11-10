@@ -9,6 +9,9 @@ interface UserProfile {
   phone?: string;
 }
 
+// Awalnya Express cuma tahu req punya data bawaan seperti req.body, req.params, dan req.headers.
+// Kode ini mengajari TypeScript bahwa kita menambahkan kotak baru: req.user
+// Jadi bisa lihat console.log(req.user.name);
 declare global {
   namespace Express {
     interface Request {
