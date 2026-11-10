@@ -9,7 +9,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/auth", AuthRouter);
 
-app.get("/hello", (req, res) => {
+app.get("/", (req, res) => {
   res.json({
     success: true,
     message: "Hello Craby Estate!",

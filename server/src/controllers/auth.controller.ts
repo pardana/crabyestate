@@ -64,3 +64,10 @@ export const RegisterUser: RequestHandler = async (req, res) => {
     });
   }
 };
+
+export const LoginUser: RequestHandler = async (req, res) => {
+  res.status(200).json({
+    status: true,
+    message: "Login User",
+  });
+};
