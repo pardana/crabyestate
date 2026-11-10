@@ -61,7 +61,7 @@ export const RegisterUser: RequestHandler = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Server error RegisterUser",
+      message: "Internal server error - RegisterUser",
     });
   }
 };
@@ -131,7 +131,7 @@ export const LoginUser: RequestHandler = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       status: false,
-      message: "Server error LoginUser",
+      message: "Internal server error - LoginUser",
     });
   }
 };
