@@ -35,7 +35,7 @@ model Property {
   specs         PROPERTYSPEC
   location      PROPERTYLOCATION
   amenities     String[]
-  media         PROPERTYMEDIA
+  media         PROPERTYMEDIA[]
   agent_id      String           @db.ObjectId
   agent         User             @relation(fields: [agent_id], references: [id])
   createdAt     DateTime         @default(now())
