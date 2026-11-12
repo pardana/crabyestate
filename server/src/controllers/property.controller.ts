@@ -118,10 +118,26 @@ export const ReadAllProperty: RequestHandler = async (
   res,
 ): Promise<void> => {
   try {
+    const properties = await prisma.property.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+      include: {
+        agent: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+          },
+        },
+      },
+    });
+
     res.status(200).json({
       status: true,
-      message: "Read all property success!",
-      data: await prisma.property.findMany(),
+      message: "Get all property success!",
+      data: properties,
     });
   } catch (error) {
     res.status(500).json({
@@ -136,11 +152,45 @@ export const DetailProperty: RequestHandler = async (
   res,
 ): Promise<void> => {
   try {
-    const { id } = req.params;
+    const rawId = req.params.id;
+    const id = Array.isArray(rawId) ? rawId[0] : rawId;
+
+    if (!id) {
+      res.status(400).json({
+        status: false,
+        message: "Invalid property id!",
+      });
+      return;
+    }
+
+    const property = await prisma.property.findUnique({
+      where: {
+        id: id,
+      },
+      include: {
+        agent: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+          },
+        },
+      },
+    });
+
+    if (!property) {
+      res.status(404).json({
+        status: false,
+        message: "ID Property not found!",
+      });
+      return;
+    }
+
     res.status(200).json({
       status: true,
-      message: "Detail property success!",
-      data: id,
+      message: "Get detail property success!",
+      data: property,
     });
   } catch (error) {
     res.status(500).json({
@@ -155,9 +205,34 @@ export const GetAllOwnerProperty: RequestHandler = async (
   res,
 ): Promise<void> => {
   try {
+    if (!req.user) {
+      res.status(401).json({
+        status: false,
+        message: "Unauthorized Access!",
+      });
+      return;
+    }
+
+    const properties = await prisma.property.findMany({
+      where: {
+        agent_id: req.user.id,
+      },
+      include: {
+        agent: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+          },
+        },
+      },
+    });
+
     res.status(200).json({
       status: true,
       message: "Get all owner property success!",
+      data: properties,
     });
   } catch (error) {
     res.status(500).json({
