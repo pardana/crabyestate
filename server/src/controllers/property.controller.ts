@@ -112,3 +112,57 @@ export const CreateProperty: RequestHandler = async (
     });
   }
 };
+
+export const ReadAllProperty: RequestHandler = async (
+  req,
+  res,
+): Promise<void> => {
+  try {
+    res.status(200).json({
+      status: true,
+      message: "Read all property success!",
+      data: await prisma.property.findMany(),
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: false,
+      message: "Internal server error - ReadAllProperty",
+    });
+  }
+};
+
+export const DetailProperty: RequestHandler = async (
+  req,
+  res,
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    res.status(200).json({
+      status: true,
+      message: "Detail property success!",
+      data: id,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: false,
+      message: "Internal server error - DetailProperty",
+    });
+  }
+};
+
+export const GetAllOwnerProperty: RequestHandler = async (
+  req,
+  res,
+): Promise<void> => {
+  try {
+    res.status(200).json({
+      status: true,
+      message: "Get all owner property success!",
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: false,
+      message: "Internal server error - GetAllOwnerProperty",
+    });
+  }
+};

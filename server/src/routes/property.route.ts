@@ -1,5 +1,10 @@
 import express from "express";
-import { CreateProperty } from "../controllers/property.controller.js";
+import {
+  CreateProperty,
+  DetailProperty,
+  GetAllOwnerProperty,
+  ReadAllProperty,
+} from "../controllers/property.controller.js";
 import AuthMiddleware from "../middlewares/auth.middleware.js";
 import uploadFileMulter from "../config/multer.js";
 
@@ -11,5 +16,8 @@ PropertyRouter.post(
   uploadFileMulter.array("images", 5),
   CreateProperty,
 );
+PropertyRouter.get("/", ReadAllProperty);
+PropertyRouter.get("/user", GetAllOwnerProperty);
+PropertyRouter.get("/:id", DetailProperty);
 
 export default PropertyRouter;
