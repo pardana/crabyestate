@@ -17,7 +17,7 @@ PropertyRouter.post(
   CreateProperty,
 );
 PropertyRouter.get("/", ReadAllProperty);
-PropertyRouter.get("/user", GetAllOwnerProperty);
+PropertyRouter.get("/user", AuthMiddleware, GetAllOwnerProperty);
 PropertyRouter.get("/:id", DetailProperty);
 
 export default PropertyRouter;
