@@ -4,6 +4,7 @@ import {
   DetailProperty,
   GetAllOwnerProperty,
   ReadAllProperty,
+  UpdatePropertyByParams,
 } from "../controllers/property.controller.js";
 import AuthMiddleware from "../middlewares/auth.middleware.js";
 import uploadFileMulter from "../config/multer.js";
@@ -19,5 +20,12 @@ PropertyRouter.post(
 PropertyRouter.get("/", ReadAllProperty);
 PropertyRouter.get("/user", AuthMiddleware, GetAllOwnerProperty);
 PropertyRouter.get("/:id", DetailProperty);
+
+PropertyRouter.put(
+  "/:id",
+  AuthMiddleware,
+  uploadFileMulter.array("images", 5),
+  UpdatePropertyByParams,
+);
 
 export default PropertyRouter;

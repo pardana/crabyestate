@@ -241,3 +241,31 @@ export const GetAllOwnerProperty: RequestHandler = async (
     });
   }
 };
+
+export const UpdatePropertyByParams: RequestHandler = async (
+  req,
+  res,
+): Promise<void> => {
+  try {
+    const rawId = req.params.id;
+    const id = Array.isArray(rawId) ? rawId[0] : rawId;
+
+    if (!id) {
+      res.status(400).json({
+        status: false,
+        message: "Invalid property id!",
+      });
+      return;
+    }
+
+    res.status(200).json({
+      status: true,
+      message: "Update property success!",
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: false,
+      message: "Internal server error - UpdatePropertyByParams",
+    });
+  }
+};
