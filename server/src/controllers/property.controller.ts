@@ -316,7 +316,7 @@ export const UpdatePropertyByParams: RequestHandler = async (
 
     // jika ada image baru yang di upload, maka hapus image yang lama dan ganti image baru
     if (files && files.length > 0) {
-      for (const item of property.media) {
+      for (const item of media) {
         try {
           await deleteFromCloudinary(item.image_id);
         } catch (error) {
