@@ -258,6 +258,33 @@ export const UpdatePropertyByParams: RequestHandler = async (
       return;
     }
 
+    if (!req.user) {
+      res.status(401).json({
+        status: false,
+        message: "Unauthorized Access!",
+      });
+    }
+
+    const property = await prisma.property.findUnique({
+      where: {
+        id: id,
+      },
+    });
+
+    if (!property) {
+      res.status(404).json({
+        status: false,
+        message: "ID Property not found!",
+      });
+    }
+
+    if (property?.agent_id !== req.user.id) {
+      res.status(403).json({
+        status: false,
+        message: "Forbidden Access! You are not the owner of this property!",
+      });
+    }
+
     res.status(200).json({
       status: true,
       message: "Update property success!",
