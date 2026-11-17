@@ -1,5 +1,8 @@
 import { RequestHandler } from "express";
-import { uploadToCloudinary } from "../utils/uploadToCloudinary.js";
+import {
+  deleteFromCloudinary,
+  uploadToCloudinary,
+} from "../utils/uploadToCloudinary.js";
 import { prisma } from "../config/prisma.js";
 
 export const CreateProperty: RequestHandler = async (
@@ -263,6 +266,7 @@ export const UpdatePropertyByParams: RequestHandler = async (
         status: false,
         message: "Unauthorized Access!",
       });
+      return;
     }
 
     const property = await prisma.property.findUnique({
@@ -276,6 +280,7 @@ export const UpdatePropertyByParams: RequestHandler = async (
         status: false,
         message: "ID Property not found!",
       });
+      return;
     }
 
     if (property?.agent_id !== req.user.id) {
@@ -283,11 +288,113 @@ export const UpdatePropertyByParams: RequestHandler = async (
         status: false,
         message: "Forbidden Access! You are not the owner of this property!",
       });
+      return;
     }
 
-    res.status(200).json({
+    const {
+      title,
+      description,
+      property_type,
+      listing_type,
+      price,
+      status,
+      bedrooms,
+      bathrooms,
+      surface_area,
+      building_area,
+      floors,
+      address,
+      city,
+      state,
+      longitude,
+      latitude,
+      amenities,
+    } = req.body;
+
+    const files = req.files as Express.Multer.File[];
+    let media = property.media;
+
+    // jika ada image baru yang di upload, maka hapus image yang lama dan ganti image baru
+    if (files && files.length > 0) {
+      for (const item of property.media) {
+        try {
+          await deleteFromCloudinary(item.image_id);
+        } catch (error) {
+          console.log(`Failed to delete image: ${item.image_id}`);
+        }
+      }
+
+      //upload image baru ke cloudinary
+      media = [];
+      for (let index = 0; index < files.length; index++) {
+        const result = await uploadToCloudinary(
+          files[index].buffer,
+          "crabyestate/property",
+        );
+
+        media.push({
+          url: result.url,
+          image_id: result.image_id,
+        });
+      }
+    }
+
+    const parseAmenities =
+      typeof amenities === "string" ? JSON.parse(amenities) : amenities || [];
+
+    const updatedProperty = await prisma.property.update({
+      where: {
+        id: id,
+      },
+      data: {
+        title: title ?? property.title,
+        description: description ?? property.description,
+        property_type: property_type ?? property.property_type,
+        listing_type: listing_type ?? property.listing_type,
+        price: price !== undefined ? Number(price) : property.price,
+        status: status ?? property.status,
+
+        specs: {
+          bedrooms:
+            bedrooms !== undefined ? Number(bedrooms) : property.specs.bedrooms,
+          bathrooms:
+            bathrooms !== undefined
+              ? Number(bathrooms)
+              : property.specs.bathrooms,
+          surface_area:
+            surface_area !== undefined
+              ? Number(surface_area)
+              : property.specs.surface_area,
+          building_area:
+            building_area !== undefined
+              ? Number(building_area)
+              : property.specs.building_area,
+          floors: floors !== undefined ? Number(floors) : property.specs.floors,
+        },
+
+        location: {
+          address: address ?? property.location.address,
+          city: city ?? property.location.city,
+          state: state ?? property.location.state,
+          coordinates: [
+            longitude !== undefined
+              ? Number(longitude)
+              : property.location.coordinates[0],
+            latitude !== undefined
+              ? Number(latitude)
+              : property.location.coordinates[1],
+          ],
+        },
+
+        amenities: parseAmenities ?? property.amenities,
+        media: media,
+      },
+    });
+
+    res.status(201).json({
       status: true,
       message: "Update property success!",
+      data: updatedProperty,
     });
   } catch (error) {
     res.status(500).json({
