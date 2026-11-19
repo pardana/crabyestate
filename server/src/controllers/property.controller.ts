@@ -403,3 +403,20 @@ export const UpdatePropertyByParams: RequestHandler = async (
     });
   }
 };
+
+export const DeleteProperty: RequestHandler = async (
+  req,
+  res,
+): Promise<void> => {
+  try {
+    res.status(200).json({
+      status: true,
+      message: "Delete property success!",
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: false,
+      message: "Internal server error - DeleteProperty",
+    });
+  }
+};

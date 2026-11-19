@@ -1,6 +1,7 @@
 import express from "express";
 import {
   CreateProperty,
+  DeleteProperty,
   DetailProperty,
   GetAllOwnerProperty,
   ReadAllProperty,
@@ -27,5 +28,7 @@ PropertyRouter.put(
   uploadFileMulter.array("images", 5),
   UpdatePropertyByParams,
 );
+
+PropertyRouter.delete("/:id", AuthMiddleware, DeleteProperty);
 
 export default PropertyRouter;
