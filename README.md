@@ -155,39 +155,6 @@ Build TypeScript saat dokumentasi ini dibuat sudah berhasil. Belum ada script te
 | CLOUDINARY_API_KEY | Ya untuk upload | API key Cloudinary. |
 | CLOUDINARY_API_SECRET | Ya untuk upload | API secret Cloudinary. |
 
-## Model data
-
-### User
-
-| Field | Keterangan |
-| --- | --- |
-| id | MongoDB ObjectId, disimpan sebagai string oleh API. |
-| name | Nama pengguna. |
-| email | Unik. |
-| password | Hash bcrypt; tidak dikembalikan oleh endpoint register/login. |
-| phone | Opsional pada database, tetapi wajib saat registrasi pada API saat ini. |
-| properties | Relasi ke Property yang dimiliki agen. |
-| createdAt, updatedAt | Timestamp otomatis. |
-
-### Property
-
-| Field | Keterangan |
-| --- | --- |
-| id | MongoDB ObjectId. |
-| title, description | Informasi utama properti. |
-| property_type | HOUSE, APARTMENT, atau SHOPHOUSE. |
-| listing_type | SELL atau RENT. |
-| status | ACTIVE, PENDING, atau SOLDOUT. Default PENDING. |
-| price | Angka desimal. |
-| specs | Object berisi bedrooms, bathrooms, surface_area, building_area, floors. |
-| location | Object berisi address, city, state, coordinates. |
-| amenities | Array string, misalnya Parking atau Garden. |
-| media | Array object dengan url dan image_id Cloudinary. |
-| agent_id | ID User pemilik listing. |
-| createdAt, updatedAt | Timestamp otomatis. |
-
-Urutan location.coordinates selalu [longitude, latitude].
-
 ## Referensi API
 
 Base URL lokal: http://localhost:3000
@@ -226,13 +193,51 @@ Respons login berisi token. Simpan token tersebut di client dan kirimkan seperti
 
 | Method | Endpoint | Auth | Format request | Deskripsi |
 | --- | --- | --- | --- | --- |
-| GET | /api/property | Tidak | - | Mengambil semua property, terbaru lebih dahulu. |
+| GET | /api/property | Tidak | Query parameter opsional | Mengambil listing dengan search, filter, sorting, dan pagination. |
 | GET | /api/property/:id | Tidak | - | Mengambil detail satu property dan data ringkas agen. |
 | GET | /api/property/user | Bearer token | - | Mengambil semua property milik pengguna saat ini. |
 | POST | /api/property | Bearer token | multipart/form-data | Membuat property baru. |
 | PUT | /api/property/:id | Bearer token dan pemilik | multipart/form-data | Memperbarui property milik sendiri. |
 
 Tidak ada endpoint DELETE pada source saat ini.
+
+#### Daftar property: search, filter, sorting, dan pagination
+
+GET /api/property menerima query parameter berikut. Seluruhnya opsional.
+
+| Parameter | Contoh | Keterangan |
+| --- | --- | --- |
+| search | Rumah Bandung | Mencari teks pada judul property tanpa membedakan huruf besar/kecil. |
+| property_type | HOUSE | Filter: HOUSE, APARTMENT, atau SHOPHOUSE. |
+| listing_type | SELL | Filter: SELL atau RENT. |
+| status | ACTIVE | Filter: ACTIVE, PENDING, atau SOLDOUT. |
+| minPrice | 500000000 | Harga minimum, inklusif. |
+| maxPrice | 1500000000 | Harga maksimum, inklusif. |
+| city | Bandung | Filter berdasarkan kota. |
+| page | 2 | Nomor halaman. Nilai bawaan 1. |
+| limit | 20 | Jumlah data per halaman. Nilai bawaan 10, maksimum 100. |
+| sortBy | price | Field urut yang diizinkan: createdAt, updatedAt, price, title. Nilai lain kembali ke createdAt. |
+| sortOrder | asc | asc untuk naik; nilai selain asc diperlakukan sebagai desc. |
+
+Contoh:
+
+    curl "http://localhost:3000/api/property?search=rumah&city=Bandung&minPrice=500000000&maxPrice=1500000000&page=1&limit=10&sortBy=price&sortOrder=asc"
+
+Selain data listing pada field data, respons endpoint ini kini memuat metadata pagination:
+
+    {
+      "status": true,
+      "message": "Read all property success!",
+      "data": [],
+      "pagination": {
+        "page": 1,
+        "limit": 10,
+        "total": 0,
+        "totalPages": 0,
+        "hasNextPage": false,
+        "hasPrevPage": false
+      }
+    }
 
 #### Membuat property
 

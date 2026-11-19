@@ -121,25 +121,130 @@ export const ReadAllProperty: RequestHandler = async (
   res,
 ): Promise<void> => {
   try {
-    const properties = await prisma.property.findMany({
-      orderBy: {
-        createdAt: "desc",
-      },
-      include: {
-        agent: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            phone: true,
+    const {
+      search,
+      description,
+      property_type,
+      listing_type,
+      status,
+      minPrice,
+      maxPrice,
+      city,
+      state,
+      page = "1",
+      limit = "10",
+      sortBy = "createdAt",
+      sortOrder = "desc",
+    } = req.query;
+
+    // Filtering and Searching
+    const where: any = {};
+    if (search) {
+      where.title = {
+        contains: String(search),
+        mode: "insensitive",
+      };
+    }
+
+    if (description) {
+      where.description = {
+        contains: String(description),
+        mode: "insensitive",
+      };
+    }
+
+    if (property_type) {
+      where.property_type = String(property_type);
+    }
+
+    if (listing_type) {
+      where.listing_type = String(listing_type);
+    }
+
+    if (status) {
+      where.status = String(status);
+    }
+
+    if (minPrice || maxPrice) {
+      where.price = {};
+
+      if (minPrice) {
+        where.price.gte = Number(minPrice); //greater than or equal
+      }
+
+      if (maxPrice) {
+        where.price.lte = Number(maxPrice); //less than or equal
+      }
+    }
+
+    if (city || state) {
+      where.location = {
+        is: {
+          city: String(city),
+        },
+      };
+    }
+
+    if (state) {
+      where.location = {
+        is: {
+          state: String(state),
+        },
+      };
+    }
+
+    // Sorting and Pagination
+    const allowedSortField = ["createdAt", "updatedAt", "price", "title"];
+
+    const validSortBy = allowedSortField.includes(String(sortBy))
+      ? String(sortBy)
+      : "createdAt";
+
+    const validSortOrder = sortOrder === "asc" ? "asc" : "desc";
+
+    const currentPage = Math.max(Number(page), 1);
+    const pageLimit = Math.min(Math.max(Number(limit), 1), 100);
+    const skip = (currentPage - 1) * pageLimit;
+
+    const [properties, total] = await Promise.all([
+      prisma.property.findMany({
+        where: where,
+        skip: skip,
+        take: pageLimit,
+        orderBy: {
+          [validSortBy]: validSortOrder,
+        },
+
+        include: {
+          agent: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              phone: true,
+            },
           },
         },
-      },
-    });
+      }),
+
+      prisma.property.count({
+        where: where,
+      }),
+    ]);
+
+    const totalPages = Math.ceil(total / pageLimit);
 
     res.status(200).json({
       status: true,
-      message: "Get all property success!",
+      message: "Read all property success!",
+      pagination: {
+        page: currentPage,
+        limit: pageLimit,
+        total: total,
+        totalPages: totalPages,
+        hasNextPage: currentPage < totalPages,
+        hasPrevPage: currentPage > 1,
+      },
       data: properties,
     });
   } catch (error) {
