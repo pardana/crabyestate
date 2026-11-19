@@ -180,15 +180,8 @@ export const ReadAllProperty: RequestHandler = async (
     if (city || state) {
       where.location = {
         is: {
-          city: String(city),
-        },
-      };
-    }
-
-    if (state) {
-      where.location = {
-        is: {
-          state: String(state),
+          ...(city && { city: String(city) }),
+          ...(state && { state: String(state) }),
         },
       };
     }
