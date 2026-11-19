@@ -450,6 +450,22 @@ export const DeleteProperty: RequestHandler = async (
       return;
     }
 
+    //Hapus file gambar dari cloudinary
+    for (const item of property.media) {
+      try {
+        await deleteFromCloudinary(item.image_id);
+      } catch (error) {
+        console.log(`Failed to delete image: ${item.image_id}`);
+      }
+    }
+
+    //Hapus data dari database
+    await prisma.property.delete({
+      where: {
+        id: id,
+      },
+    });
+
     res.status(200).json({
       status: true,
       message: "Delete property success!",
