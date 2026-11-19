@@ -409,6 +409,47 @@ export const DeleteProperty: RequestHandler = async (
   res,
 ): Promise<void> => {
   try {
+    const rawId = req.params.id;
+    const id = Array.isArray(rawId) ? rawId[0] : rawId;
+
+    if (!id) {
+      res.status(400).json({
+        status: false,
+        message: "Invalid property id!",
+      });
+      return;
+    }
+
+    if (!req.user) {
+      res.status(401).json({
+        status: false,
+        message: "Unauthorized Access!",
+      });
+      return;
+    }
+
+    const property = await prisma.property.findUnique({
+      where: {
+        id: id,
+      },
+    });
+
+    if (!property) {
+      res.status(404).json({
+        status: false,
+        message: "ID Property not found!",
+      });
+      return;
+    }
+
+    if (property.agent_id !== req.user.id) {
+      res.status(403).json({
+        status: false,
+        message: "Forbidden Access! You are not the owner of this property!",
+      });
+      return;
+    }
+
     res.status(200).json({
       status: true,
       message: "Delete property success!",
