@@ -20,8 +20,12 @@ model User {
   password   String
   phone      String?
   properties Property[]
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
+
+  sender_messages   ContactMessage[] @relation("SendMessage")
+  received_messages ContactMessage[] @relation("ReceivedMessage")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Property {
@@ -36,10 +40,32 @@ model Property {
   location      PROPERTYLOCATION
   amenities     String[]
   media         PROPERTYMEDIA[]
-  agent_id      String           @db.ObjectId
-  agent         User             @relation(fields: [agent_id], references: [id])
-  createdAt     DateTime         @default(now())
-  updatedAt     DateTime         @updatedAt
+
+  agent_id         String           @db.ObjectId
+  agent            User             @relation(fields: [agent_id], references: [id])
+  contact_messages ContactMessage[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ContactMessage {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  firstName String
+  lastName  String
+  email     String
+  phone     String
+  message   String
+
+  sender_id   String   @db.ObjectId
+  sender      User     @relation("SendMessage", fields: [sender_id], references: [id])
+  agent_id    String   @db.ObjectId
+  agent       User     @relation("ReceivedMessage", fields: [agent_id], references: [id])
+  property_id String   @db.ObjectId
+  property    Property @relation(fields: [property_id], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum PROPERTYENUM {
