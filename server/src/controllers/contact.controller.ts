@@ -101,3 +101,37 @@ export const SendContactMessage: RequestHandler = async (
     });
   }
 };
+
+export const GetAllClientMessages: RequestHandler = async (
+  req,
+  res,
+): Promise<void> => {
+  try {
+    res.status(200).json({
+      status: true,
+      message: "Get all client messages successfully!",
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: false,
+      message: "Internal server error - GetAllClientMessages",
+    });
+  }
+};
+
+export const GetAllAgentMessages: RequestHandler = async (
+  req,
+  res,
+): Promise<void> => {
+  try {
+    res.status(200).json({
+      status: true,
+      message: "Get all agent messages successfully!",
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: false,
+      message: "Internal server error - GetAllAgentMessages",
+    });
+  }
+};
