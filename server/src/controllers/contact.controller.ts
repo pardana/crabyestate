@@ -107,9 +107,45 @@ export const GetAllClientMessages: RequestHandler = async (
   res,
 ): Promise<void> => {
   try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      res.status(401).json({
+        status: false,
+        message: "Unauthorized access!",
+      });
+      return;
+    }
+
+    const clientMessages = await prisma.contactMessage.findMany({
+      where: {
+        agent_id: userId,
+      },
+      include: {
+        sender: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+          },
+        },
+        property: true,
+      },
+    });
+
+    if (!clientMessages.length) {
+      res.status(200).json({
+        status: true,
+        message: "No client messages!",
+      });
+      return;
+    }
+
     res.status(200).json({
       status: true,
       message: "Get all client messages successfully!",
+      data: clientMessages,
     });
   } catch (error) {
     res.status(500).json({
@@ -124,9 +160,45 @@ export const GetAllAgentMessages: RequestHandler = async (
   res,
 ): Promise<void> => {
   try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      res.status(401).json({
+        status: false,
+        message: "Unauthorized access!",
+      });
+      return;
+    }
+
+    const agentMessages = await prisma.contactMessage.findMany({
+      where: {
+        sender_id: userId,
+      },
+      include: {
+        agent: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+          },
+        },
+        property: true,
+      },
+    });
+
+    if (!agentMessages.length) {
+      res.status(200).json({
+        status: true,
+        message: "No agent messages!",
+      });
+      return;
+    }
+
     res.status(200).json({
       status: true,
       message: "Get all agent messages successfully!",
+      data: agentMessages,
     });
   } catch (error) {
     res.status(500).json({
