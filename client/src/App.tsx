@@ -1,30 +1,21 @@
-import { HeroSection } from "./sections/hero-sections"
-import { Stats } from "./sections/stats"
-import { Gallery } from "./sections/gallery"
-import { WhyChooseUs } from "./sections/why-choose-us"
-import { Testimonials } from "./sections/testimonials"
-import { CallToAction } from "./sections/call-to-action"
-import { Contact } from "./sections/contact"
-import { Footer } from "./components/footer"
-import { Navbar } from "./components/navbar";
-import LenisScroll from "./components/lenis-scroll"
+import { BrowserRouter, Route, Routes } from "react-router";
+import HomePage from "./pages/HomePage";
+import AboutPage from "./pages/AboutPage";
+import PropertyPage from "./pages/PropertyPage";
+import PublicLayout from "./layouts/PublicLayout";
 
 function App() {
-
   return (
-    <>
-      <LenisScroll />
-      <Navbar />
-      <HeroSection />
-      <Stats />
-      <Gallery />
-      <WhyChooseUs />
-      <Testimonials />  
-      <CallToAction />
-      <Contact />
-      <Footer />
-    </>
-  )
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<PublicLayout />}>
+          <Route index element={<HomePage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/property" element={<PropertyPage />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
