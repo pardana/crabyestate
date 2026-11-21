@@ -1,6 +1,6 @@
 const AboutPage = () => {
   return (
-    <>
+    <main className="min-h-screen pt-32">
       <h1 className="text-3xl font-semibold text-center mx-auto">
         About our apps
       </h1>
@@ -73,7 +73,7 @@ const AboutPage = () => {
           </div>
         </div>
       </div>
-    </>
+    </main>
   );
 };
 

@@ -2,9 +2,7 @@ import React from "react";
 
 const PropertyPage = () => {
   return (
-    <div>
-      <h1 className="text-3xl font-semibold">Property Page</h1>
-    </div>
+    <main className="min-h-screen pt-32 max-w-3xl mx-auto">Property Page</main>
   );
 };
 

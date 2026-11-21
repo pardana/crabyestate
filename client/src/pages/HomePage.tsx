@@ -12,8 +12,6 @@ import { Footer } from "../components/footer";
 const HomePage = () => {
   return (
     <>
-      <LenisScroll />
-      <Navbar />
       <HeroSection />
       <Stats />
       <Gallery />
@@ -21,7 +19,6 @@ const HomePage = () => {
       <Testimonials />
       <CallToAction />
       <Contact />
-      <Footer />
     </>
   );
 };
